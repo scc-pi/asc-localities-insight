@@ -1,0 +1,90 @@
+---
+title: "ASC locality insight (`r format(Sys.time(), '%d/%m/%y')`)"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(tidyverse); library(readxl); library(sf) 
+library(flexdashboard); library(viridis); library(DT)
+
+# Disable use of scientific notation
+options(scipen=999)
+
+# Define a theme for the plots in the dashboard 
+theme_set(theme_minimal())
+```
+
+```{r global, include=FALSE}
+
+## LOCAL VARIABLES -------------------------------------------
+
+# Name of the SLI measures spreadsheet
+sli_measures_file <- "sli_measures.xlsx"
+
+# Location of data we're using for maps
+map_data_folder <- str_c(
+  "S:/Public Health/Policy Performance Communications/Business Intelligence/",
+  "Projects/AdultSocialCare/ASC_SNA/demographics/data")
+
+# Name of the ASC SLI data file
+asc_sli_file <- "df_asc_sli.rds"
+
+# Name of the file with the ASC locality boundaries
+asc_localities_sf_file <- "sf_asc_localities.rds"
+
+## READ & TRANSFORM ------------------------------------------
+
+# Get the names of the ASC SLI measures that we want to include
+df_asc_sli_measures <- read_xlsx(sli_measures_file) %>% 
+  filter(str_to_lower(include) == "yes") %>% 
+  select(-include)
+
+# Get the ASC SLI data
+df_asc_sli <- read_rds(str_c(map_data_folder, "/", asc_sli_file)) %>% #all
+  filter(measure %in% df_asc_sli_measures$measure) %>% #only what we want
+  pivot_wider(names_from = measure, values_from = value)
+
+
+# Get the ASC locality boundaries with cross-references to LACs
+sf_asc_localities <- read_rds(str_c(map_data_folder,
+                                    "/", asc_localities_sf_file))
+
+# Join the SLI data to the ASC locality boundaries
+sf_asc_sli <- left_join(sf_asc_localities, df_asc_sli, 
+                        by = c("ca_name" = "area")) %>% 
+  relocate(c(X, Y), .before = geom)
+```
+
+```{r render subpages, include=FALSE}
+# Get population measures for the subpages
+measures_pop <- c("Total population", "Population aged 65+")
+
+# Create variable which stores all subpages outputs
+out = NULL
+
+# Set knitr options to allow duplicate labels (needed for the subpages)
+options(knitr.duplicate.label = 'allow')
+
+# Create temporary environment which we use for knitting subpage.RMD
+subpage_env <- new.env()
+
+for (measure in measures_pop) {
+  # Filter data for product group 
+  subpage_data <- sf_asc_sli %>% 
+    select(1:4, all_of(measure), c(X, Y, geom))
+  
+  # Assign filtered data and product group to subpage_env 
+  assign("subpage_data", subpage_data, subpage_env)
+  assign("Population", measure, subpage_env)
+  
+  # Knit subpage.RMD using the subpage_env and add result to out vector
+  out = c(out, knitr::knit_child('asc_sli_subpage.Rmd', 
+                                 envir = subpage_env))
+}
+```
+
+`r paste(knitr::knit_child(text = out), collapse = '')`

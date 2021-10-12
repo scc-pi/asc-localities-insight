@@ -1,0 +1,49 @@
+`r paste0('# ', measure, '{data-navmenu="Population"}')`
+
+Row
+-----------------------------------------------------------------------
+
+### 
+```{r fig.width=10}
+ggplot(subpage_data, aes_string(fill = as.name(measure))) +
+  geom_sf(alpha = 0.8, colour = 'white', size = 0.3) +
+  geom_text(data = subpage_data, aes(X, Y, label = asc_name), size = 3) +
+  scale_fill_viridis(discrete = FALSE,
+                     name = measure,
+                     direction = -1,
+                     labels = function(x) 
+                       format(x, big.mark = ",", scientific = FALSE),
+                     guide = guide_colourbar(
+                       direction = "horizontal",
+                       barheight = unit(2, units = "mm"),
+                       barwidth = unit(50, units = "mm"),
+                       draw.ulim = F,
+                       title.position = 'top',
+                       title.hjust = 0.5,
+                       label.hjust = 0.5)) +
+  labs(x = NULL, y = NULL,
+       title = str_c(measure, " by ASC locality")
+       #, subtitle = "Source: Local Insight"
+       #, caption = "Contains OS data © Crown copyright and database right (2021)
+       ) +
+  theme(line = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        panel.background = element_blank(),
+        legend.position = c(0.2, 0.09),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8))
+```
+
+### 
+```{r}
+subpage_data %>% 
+  as_tibble () %>% #drops sf geometry (but not geom column)
+  select(-objectid, -X, -Y, -geom) %>% 
+  relocate(asc_name, .before = 1) %>% 
+  relocate(all_of(measure), .before = 1) %>% 
+  rename(ASC = asc_name, "CA number" = ca_number, "CA name" = ca_name) %>%
+  datatable(rownames = FALSE, 
+            options = list(dom = 't'), 
+            class = 'cell-border stripe')
+```
