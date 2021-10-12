@@ -1,4 +1,4 @@
-`r paste0('# ', measure, '{data-navmenu="Population"}')`
+`r paste0('# ', measure, '{data-navmenu=', menu_theme, '}')`
 
 Row
 -----------------------------------------------------------------------

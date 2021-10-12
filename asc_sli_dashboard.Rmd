@@ -60,9 +60,6 @@ sf_asc_sli <- left_join(sf_asc_localities, df_asc_sli,
 ```
 
 ```{r render subpages, include=FALSE}
-# Get population measures for the subpages
-measures_pop <- c("Total population", "Population aged 65+")
-
 # Create variable which stores all subpages outputs
 out = NULL
 
@@ -72,18 +69,37 @@ options(knitr.duplicate.label = 'allow')
 # Create temporary environment which we use for knitting subpage.RMD
 subpage_env <- new.env()
 
-for (measure in measures_pop) {
-  # Filter data for product group 
-  subpage_data <- sf_asc_sli %>% 
-    select(1:4, all_of(measure), c(X, Y, geom))
+# Get list of unique themes
+df_themes <- df_asc_sli_measures %>% 
+  select(theme) %>% 
+  unique()
+
+# Provide a menu header for each theme
+for (menu_theme in df_themes$theme) {
   
-  # Assign filtered data and product group to subpage_env 
-  assign("subpage_data", subpage_data, subpage_env)
-  assign("Population", measure, subpage_env)
+  # Filter data on theme
+  sf_asc_sli_theme <- sf_asc_sli %>% 
+    filter(theme == menu_theme)
   
-  # Knit subpage.RMD using the subpage_env and add result to out vector
-  out = c(out, knitr::knit_child('asc_sli_subpage.Rmd', 
-                                 envir = subpage_env))
+  # Filter measures on theme
+  df_asc_sli_measures_theme <- df_asc_sli_measures %>% 
+    filter(theme == menu_theme)
+
+  # Provide a menu item for each measure
+  for (measure in df_asc_sli_measures_theme$measure) {
+    
+    # Filter data for measures 
+    subpage_data <- sf_asc_sli_theme %>% 
+      select(1:4, all_of(measure), c(X, Y, geom))
+    
+    # Assign filtered data, theme and measure to subpage_env 
+    assign("subpage_data", subpage_data, subpage_env)
+    assign(menu_theme, measure, subpage_env)
+    
+    # Knit subpage.RMD using the subpage_env and add result to out vector
+    out = c(out, knitr::knit_child('asc_sli_subpage.Rmd', 
+                                   envir = subpage_env))
+  }
 }
 ```
 
