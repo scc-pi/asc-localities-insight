@@ -1,5 +1,7 @@
 # Sheffield Adult Social Care localities insight.  
 
+Dashboard: [scc-pi.github.io/asc-localities-insight](https://scc-pi.github.io/asc-localities-insight/)
+
 The purpose is to provide some baseline statistics and mapping around Sheffield's ASC (Adult Social Care) localities for the [ASC strategic needs analysis project](https://github.com/scc-pi/ASC_SNA).  
 
 SLI ([Sheffield Local Insight](https://sheffield.communityinsight.org/)) is used to obtain the data. An API for SLI is estimated to be available August 2022. Until then, the data for a bespoke dashboard is exported manually for each SLI theme e.g. population. To create a bespoke dashboard to export you need an [SLI login](https://local.communityinsight.org/login/).
