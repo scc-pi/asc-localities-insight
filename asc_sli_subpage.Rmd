@@ -1,15 +1,15 @@
-`r paste0('# ', measure, '{data-navmenu=', menu_theme, '}')`
+`r paste0('# ', measure_item, '{data-navmenu=', menu_theme, '}')`
 
-Row
+Column
 -----------------------------------------------------------------------
 
 ### 
 ```{r fig.width=10}
-ggplot(subpage_data, aes_string(fill = as.name(measure))) +
+ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
   geom_sf(alpha = 0.8, colour = 'white', size = 0.3) +
   geom_text(data = subpage_data, aes(X, Y, label = asc_name), size = 3) +
   scale_fill_viridis(discrete = FALSE,
-                     name = measure,
+                     name = measure_item,
                      direction = -1,
                      labels = function(x) 
                        format(x, big.mark = ",", scientific = FALSE),
@@ -22,7 +22,7 @@ ggplot(subpage_data, aes_string(fill = as.name(measure))) +
                        title.hjust = 0.5,
                        label.hjust = 0.5)) +
   labs(x = NULL, y = NULL,
-       title = str_c(measure, " by ASC locality")
+       title = str_c(measure_item, " by ASC locality")
        #, subtitle = "Source: Local Insight"
        #, caption = "Contains OS data © Crown copyright and database right (2021)
        ) +
@@ -35,15 +35,29 @@ ggplot(subpage_data, aes_string(fill = as.name(measure))) +
         legend.text = element_text(size = 8))
 ```
 
-### 
+Column
+-----------------------------------------------------------------------
+
+### {data-height=730}
+
 ```{r}
 subpage_data %>% 
   as_tibble () %>% #drops sf geometry (but not geom column)
   select(-objectid, -X, -Y, -geom) %>% 
   relocate(asc_name, .before = 1) %>% 
-  relocate(all_of(measure), .before = 1) %>% 
+  relocate(all_of(measure_item), .before = 1) %>% 
   rename(ASC = asc_name, "CA number" = ca_number, "CA name" = ca_name) %>%
   datatable(rownames = FALSE, 
             options = list(dom = 't'), 
             class = 'cell-border stripe')
 ```
+
+### {data-height=270}
+
+\  
+
+```{r}
+kable(subpage_metadata, col.names = NULL) %>% 
+  kable_styling(font_size = 11)
+```
+

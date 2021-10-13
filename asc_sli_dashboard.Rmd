@@ -2,14 +2,13 @@
 title: "ASC locality insight"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: rows
     vertical_layout: fill
     source_code: embed
 ---
 
 ```{r setup, include=FALSE}
 library(tidyverse); library(readxl); library(sf) 
-library(flexdashboard); library(viridis); library(DT)
+library(flexdashboard); library(viridis); library(DT); library(kableExtra);
 
 # Disable use of scientific notation
 options(scipen=999)
@@ -36,6 +35,9 @@ asc_sli_file <- "df_asc_sli.rds"
 # Name of the file with the ASC locality boundaries
 asc_localities_sf_file <- "sf_asc_localities.rds"
 
+# Name of the file with the SLI metadata
+sli_measure_with_meta_file <- "df_sli_measure_with_meta.rds"
+
 ## READ & TRANSFORM ------------------------------------------
 
 # Get the names of the ASC SLI measures that we want to include
@@ -48,7 +50,6 @@ df_asc_sli <- read_rds(str_c(map_data_folder, "/", asc_sli_file)) %>% #all
   filter(measure %in% df_asc_sli_measures$measure) %>% #only what we want
   pivot_wider(names_from = measure, values_from = value)
 
-
 # Get the ASC locality boundaries with cross-references to LACs
 sf_asc_localities <- read_rds(str_c(map_data_folder,
                                     "/", asc_localities_sf_file))
@@ -57,6 +58,16 @@ sf_asc_localities <- read_rds(str_c(map_data_folder,
 sf_asc_sli <- left_join(sf_asc_localities, df_asc_sli, 
                         by = c("ca_name" = "area")) %>% 
   relocate(c(X, Y), .before = geom)
+
+# Get the metadata
+df_sli_measure_with_meta <- read_rds(str_c(map_data_folder, "/", 
+                                           sli_measure_with_meta_file)) %>% 
+  filter(measure %in% df_asc_sli_measures$measure) %>% 
+  select(-include) %>% 
+  rename("Date:" = date, "Source:" = source, 
+         "URL:" = url, "Update frequency:" = update_frequency) %>% 
+  pivot_longer(!c(theme, measure), 
+               names_to = "meta_attr", values_to = "meta_value")
 ```
 
 ```{r render subpages, include=FALSE}
@@ -86,15 +97,21 @@ for (menu_theme in df_themes$theme) {
     filter(theme == menu_theme)
 
   # Provide a menu item for each measure
-  for (measure in df_asc_sli_measures_theme$measure) {
+  for (measure_item in df_asc_sli_measures_theme$measure) {
     
-    # Filter data for measures 
+    # Filter data for the measure 
     subpage_data <- sf_asc_sli_theme %>% 
-      select(1:4, all_of(measure), c(X, Y, geom))
+      select(1:4, all_of(measure_item), c(X, Y, geom))
     
-    # Assign filtered data, theme and measure to subpage_env 
+    # Filter metadata for the measure 
+    subpage_metadata <- df_sli_measure_with_meta %>% 
+      filter(theme == menu_theme & measure == measure_item) %>% 
+      select(-theme, -measure)
+    
+    # Assign filtered data, theme & measure, and metadata to subpage_env 
     assign("subpage_data", subpage_data, subpage_env)
-    assign(menu_theme, measure, subpage_env)
+    assign(menu_theme, measure_item, subpage_env)
+    assign("subpage_metadata", subpage_metadata, subpage_env)
     
     # Knit subpage.RMD using the subpage_env and add result to out vector
     out = c(out, knitr::knit_child('asc_sli_subpage.Rmd', 

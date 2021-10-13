@@ -1,4 +1,4 @@
-# Sheffield Adult Social Care localities insight.  
+# Sheffield Adult Social Care localities insight  
 
 Dashboard: [scc-pi.github.io/asc-localities-insight](https://scc-pi.github.io/asc-localities-insight/)
 
