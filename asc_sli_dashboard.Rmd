@@ -1,5 +1,5 @@
 ---
-title: "ASC locality insight (`r format(Sys.time(), '%d/%m/%y')`)"
+title: "ASC locality insight"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows

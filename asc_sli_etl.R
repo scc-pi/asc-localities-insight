@@ -4,25 +4,17 @@
 # Author: Laurie Platt
 
 # SETUP -------------------------
-library(tidyverse)
+library(tidyverse); library(fs)
 
 # Disable use of scientific notation
 options(scipen=999)
 
-## Local input variables --------------
+## Local variables --------------
 
 # Location of the data exported from SLI (Sheffield Local Insight)
 sli_data_folder <- str_c(
   "S:/Public Health/Policy Performance Communications/Business Intelligence/",
   "Projects/AdultSocialCare/ASC_SNA/demographics/SLI bespoke dashboard export")
-
-# Name of the file with population data exported from Local Insight
-population_file <- "population_dashboard.csv"
-
-## Local output variables --------------
-
-# Name of the file with deprivation data exported from Local Insight
-deprivation_file <- "deprivation_dashboard.csv"
 
 # Location of data we're using for maps
 map_data_folder <- str_c(
@@ -32,36 +24,32 @@ map_data_folder <- str_c(
 # Name of the file we're going to create 
 asc_sli_file <- "df_asc_sli.rds"
 
-# READ --------------------------
+# READ & TRANSFORM --------------------
 
-# Get the population data we've exported manually from Local Insight
-df_population <- read_csv(str_c(sli_data_folder, "/", population_file)) %>% 
-  rename(area_type = 1, area = 2) %>% 
-  filter(area_type == "Local Area Committees") 
+# Get a list of CSV files
+theme_csv_files <- dir_ls(sli_data_folder, glob = "*.csv") %>% 
+  basename()
 
-# Get the deprivation data we've exported manually from Local Insight
-df_deprivation <- read_csv(str_c(sli_data_folder, "/", deprivation_file)) %>% 
-  rename(area_type = 1, area = 2) %>% 
-  filter(area_type == "Local Area Committees")
+# We need an empty data frame for the subsequent to add to
+df_asc_sli <- tibble()
 
-# TRANSFORM ---------------------
+# Cumulate SLI data from each theme export
+for (theme_file in theme_csv_files) {
 
-# Filter the rows and columns we need
-df_population <- df_population %>% 
-  filter(area_type == "Local Area Committees") %>% 
-  mutate(theme = "population", .after = area) %>% 
-  select(-area_type) %>% 
-  pivot_longer(!c(area, theme), names_to = "measure")
-
-# Same as above but for deprivation - TODO: change to a loop
-df_deprivation <- df_deprivation %>% 
-filter(area_type == "Local Area Committees") %>% 
-  mutate(theme = "deprivation", .after = area) %>% 
-  select(-area_type) %>% 
-  pivot_longer(!c(area, theme), names_to = "measure")
-
-# Combine data for all themes
-df_asc_sli <- bind_rows(df_population, df_deprivation)
+  # Get the theme name from the filename
+  theme_name <- str_split(theme_file, "_")[[1]][1]
+  
+  # Read and transform exported data for each theme 
+  df_theme <- read_csv(str_c(sli_data_folder, "/", theme_file)) %>% 
+    rename(area_type = 1, area = 2) %>% 
+    filter(area_type == "Local Area Committees") %>% 
+    mutate(theme = theme_name, .after = area) %>% 
+    select(-area_type) %>% 
+    pivot_longer(!c(area, theme), names_to = "measure")
+  
+  # Add each theme's data to a single data frame 
+  df_asc_sli <- bind_rows(df_asc_sli, df_theme)
+}
 
 # WRITE -------------------------
 
