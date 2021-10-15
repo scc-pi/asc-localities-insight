@@ -16,8 +16,8 @@ sli_meta_folder <- str_c(
   "S:/Public Health/Policy Performance Communications/Business Intelligence/",
   "Projects/AdultSocialCare/ASC_SNA/demographics")
 
-# Name of the spreadsheet from SLI admin with the metadata for the measures
-sli_meta_file <- "SLI_indicator_total_list.xlsx"
+# Name of the file from SLI admin with the metadata for the measures
+sli_meta_file <- "SLI_ind_metadata.csv"
 
 ## Local output variables -------
 
@@ -35,7 +35,7 @@ sli_measure_with_meta_file <- "df_sli_measure_with_meta.rds"
 df_sli_measure <- read_xlsx(sli_measures_file)
 
 # Get the SLI metadata
-df_sli_meta <- read_xlsx(str_c(sli_meta_folder, "/", sli_meta_file)) 
+df_sli_meta <- read_csv(str_c(sli_meta_folder, "/", sli_meta_file)) 
 
 # TRANSFORM ---------------------
 
@@ -44,7 +44,9 @@ df_sli_meta <- df_sli_meta %>%
   clean_names() %>% 
   mutate(name = map_chr(name, ~str_replace(.x, "Â£", "£"))) %>% 
   mutate(date = map_chr(date, ~str_replace(.x, "â€“", "-"))) %>% 
-  mutate(source = map_chr(source, ~str_replace(.x, "Â©", "©")))
+  mutate(source = map_chr(source, ~str_replace(.x, "Â©", "©"))) %>% 
+  mutate(description = map_chr(description, ~str_replace(.x, "Â£", "£"))) %>% 
+  mutate(description = map_chr(description, ~str_replace(.x, "â€™", "'")))
 
 # Join the metadata to the list of measures 
 df_sli_measure_with_meta <- df_sli_measure %>% 

@@ -1,10 +1,10 @@
-`r paste0('# ', measure_item, '{data-navmenu=', menu_theme, '}')`
+`r paste0('# ', measure_item, '{data-navmenu=', str_to_sentence(menu_theme), '}')`
 
-Column
+Column {data-width=600}
 -----------------------------------------------------------------------
 
 ### 
-```{r fig.width=10}
+```{r plot}
 ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
   geom_sf(alpha = 0.8, colour = 'white', size = 0.3) +
   geom_text(data = subpage_data, aes(X, Y, label = asc_name), size = 3) +
@@ -21,43 +21,45 @@ ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
                        title.position = 'top',
                        title.hjust = 0.5,
                        label.hjust = 0.5)) +
-  labs(x = NULL, y = NULL,
-       title = str_c(measure_item, " by ASC locality")
-       #, subtitle = "Source: Local Insight"
+  labs(x = NULL, y = NULL, 
+       #title = str_c(measure_item, " by ASC locality")
        #, caption = "Contains OS data © Crown copyright and database right (2021)
        ) +
   theme(line = element_blank(),
         axis.text = element_blank(),
         axis.title = element_blank(),
         panel.background = element_blank(),
-        legend.position = c(0.2, 0.09),
-        legend.title = element_text(size = 10),
-        legend.text = element_text(size = 8))
+        legend.position = "top",
+        # legend.position = c(0.2, 0.09),
+        legend.title = element_text(size = 9),
+        legend.text = element_text(size = 8)
+        # ,plot.title = element_text(size = 12)
+        )
 ```
 
-Column
+Column {data-width=400}
 -----------------------------------------------------------------------
 
-### {data-height=730}
+### {data-height=550}
 
-```{r}
+```{r table}
 subpage_data %>% 
   as_tibble () %>% #drops sf geometry (but not geom column)
   select(-objectid, -X, -Y, -geom) %>% 
-  relocate(asc_name, .before = 1) %>% 
+  relocate(asc_name, .before = 1) %>%
+  relocate(ca_name, .before = ca_number) %>% 
   relocate(all_of(measure_item), .before = 1) %>% 
   rename(ASC = asc_name, "CA number" = ca_number, "CA name" = ca_name) %>%
-  datatable(rownames = FALSE, 
-            options = list(dom = 't'), 
-            class = 'cell-border stripe')
+  datatable(rownames = FALSE,
+            style = "bootstrap",
+            class = "compact",
+            options = list(dom = 't', orderClasses = TRUE))
 ```
 
-### {data-height=270}
+### {data-height=450}
 
-\  
-
-```{r}
-kable(subpage_metadata, col.names = NULL) %>% 
-  kable_styling(font_size = 11)
+```{r meta}
+subpage_metadata %>% 
+  kbl(col.names = NULL) %>% 
+  scroll_box(width = "400", height = "400")
 ```
-
