@@ -7,7 +7,6 @@ Column {data-width=600}
 ```{r plot}
 plot <- ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
   geom_sf(alpha = 0.8, colour = 'white', size = 0.3) +
-  geom_text(data = subpage_data, aes(X, Y, label = asc_name), size = 3) +
   labs(x = NULL, y = NULL) +
   theme(line = element_blank(),
         axis.text = element_blank(),
@@ -21,6 +20,11 @@ plot <- ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
 if (!is.na(measure_type)){
   if (measure_type == "percentage"){
     plot <- plot +
+        geom_text(data = subpage_data, 
+            aes(X, Y, label = str_c(asc_name, "\n",
+                                    percent(.data[[measure_item]],
+                                            accuracy = 0.1, scale = 1))), 
+            size = 3) +
         scale_fill_viridis(discrete = FALSE,
                      name = measure_item,
                      direction = -1,
@@ -35,6 +39,11 @@ if (!is.na(measure_type)){
                        label.hjust = 0.5)) 
   } else if (measure_type == "small percentage"){
     plot <- plot +
+        geom_text(data = subpage_data,
+            aes(X, Y, label = str_c(asc_name, "\n",
+                                    percent(.data[[measure_item]],
+                                            accuracy = 0.01, scale = 1))),
+            size = 3) +
         scale_fill_viridis(discrete = FALSE,
                      name = measure_item,
                      direction = -1,
@@ -49,6 +58,10 @@ if (!is.na(measure_type)){
                        label.hjust = 0.5)) 
   } else if (measure_type == "integer"){
           plot <- plot +
+        geom_text(data = subpage_data,
+            aes(X, Y, label = str_c(asc_name, "\n", comma(.data[[measure_item]], 
+                                                          accuracy = 1))),
+            size = 3) +
         scale_fill_viridis(discrete = FALSE,
                      name = measure_item,
                      direction = -1,
