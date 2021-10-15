@@ -7,7 +7,8 @@ output:
 
 ```{r setup, include=FALSE}
 library(tidyverse); library(readxl); library(sf) 
-library(flexdashboard); library(viridis); library(DT); library(kableExtra);
+library(flexdashboard); library(viridis); library(scales)
+library(DT); library(kableExtra);
 
 # Disable use of scientific notation
 options(scipen=999)
@@ -63,8 +64,6 @@ df_sli_measure_with_meta <- read_rds(str_c(map_data_folder, "/",
                                            sli_measure_with_meta_file)) %>% 
   filter(measure %in% df_asc_sli_measures$measure) %>% 
   select(-include) %>% 
-  # rename("Date:" = date, "Source:" = source, 
-  #        "URL:" = url, "Update frequency:" = update_frequency) %>% 
   pivot_longer(!c(theme, measure), 
                names_to = "meta_attr", values_to = "meta_value")
 ```
@@ -102,6 +101,13 @@ for (menu_theme in df_themes$theme) {
     subpage_data <- sf_asc_sli_theme %>% 
       select(1:4, all_of(measure_item), c(X, Y, geom))
     
+    # Filter for the type of measure
+    measure_type <- df_asc_sli_measures %>% 
+      filter(theme == menu_theme & measure == measure_item) %>% 
+      select(type) %>% 
+      pluck(1) %>% 
+      str_to_lower()
+    
     # Filter metadata for the measure 
     df_metadata <- df_sli_measure_with_meta %>% 
       filter(theme == menu_theme & measure == measure_item) %>% 
@@ -120,6 +126,7 @@ for (menu_theme in df_themes$theme) {
     # Assign filtered data, theme & measure, and metadata to subpage_env
     assign("subpage_data", subpage_data, subpage_env)
     assign(menu_theme, measure_item, subpage_env)
+    assign("measure_type", measure_type, subpage_env)
     assign("subpage_metadata", subpage_metadata, subpage_env)
 
     # Knit subpage.RMD using the subpage_env and add result to out vector
