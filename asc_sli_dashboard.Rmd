@@ -3,6 +3,8 @@ title: "ASC locality insight"
 output: 
   flexdashboard::flex_dashboard:
     theme: paper
+    navbar:
+      - { title: "source code",  icon: "fa-github", href: "https://github.com/scc-pi/asc-localities-insight", align: right }
 ---
 
 ```{r setup, include=FALSE}
