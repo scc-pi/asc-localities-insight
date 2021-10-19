@@ -4,6 +4,7 @@ output:
   flexdashboard::flex_dashboard:
     theme: paper
     navbar:
+      - { title: "data via Local Insight",  icon: "fa-database", href: "https://sheffield.communityinsight.org/", align: right }
       - { title: "source code",  icon: "fa-github", href: "https://github.com/scc-pi/asc-localities-insight", align: right }
 ---
 
