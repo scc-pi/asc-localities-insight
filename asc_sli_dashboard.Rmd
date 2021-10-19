@@ -8,7 +8,7 @@ output:
 ```{r setup, include=FALSE}
 library(tidyverse); library(readxl); library(sf) 
 library(flexdashboard); library(viridis); library(scales)
-library(DT); library(kableExtra);
+library(DT); library(gt)
 
 # Disable use of scientific notation
 options(scipen=999)
@@ -121,7 +121,9 @@ for (menu_theme in df_themes$theme) {
       add_row(meta = str_c("**Update frequency:** ", 
                            df_metadata$update_frequency)) %>% 
       add_row(meta = str_c("**Source:** ", df_metadata$source)) %>% 
-      add_row(meta = df_metadata$url)
+      add_row(meta = str_c("[", str_replace(df_metadata$url, "https://", ""), 
+                           "](", df_metadata$url, ")"))
+      # add_row(meta = df_metadata$url)
 
     # Assign filtered data, theme & measure, and metadata to subpage_env
     assign("subpage_data", subpage_data, subpage_env)

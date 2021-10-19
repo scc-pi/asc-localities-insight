@@ -130,6 +130,10 @@ subpage_data
 
 ```{r meta}
 subpage_metadata %>% 
-  kbl(col.names = NULL) %>% 
-  scroll_box(width = "400", height = "400")
+  gt() %>% 
+  fmt_markdown(columns = everything()) %>% 
+  tab_options(column_labels.hidden = TRUE,
+              table.font.size = 12,
+              data_row.padding = px(2)) %>% 
+  opt_table_lines(extent = "none")
 ```
