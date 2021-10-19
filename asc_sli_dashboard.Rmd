@@ -12,7 +12,7 @@ output:
 ```{r setup, include=FALSE}
 library(tidyverse); library(readxl); library(sf) 
 library(flexdashboard); library(viridis); library(scales)
-library(DT); library(gt)
+library(DT); library(gt); library(ggrepel)
 
 # Disable use of scientific notation
 options(scipen=999)
