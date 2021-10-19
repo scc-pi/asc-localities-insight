@@ -20,7 +20,7 @@ plot <- ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
 if (!is.na(measure_type)){
   if (measure_type == "percentage"){
     plot <- plot +
-        geom_text_repel(data = subpage_data, force = 0, size = 3,
+        geom_text_repel(data = subpage_data, force = 0, size = 2.5,
                         bg.color = "white", bg.r = 0.15,
                         aes(X, Y, 
                             label = str_c(asc_name, 
@@ -42,7 +42,7 @@ if (!is.na(measure_type)){
                        label.hjust = 0.5)) 
   } else if (measure_type == "small percentage"){
     plot <- plot +
-        geom_text_repel(data = subpage_data, force = 0, size = 3,
+        geom_text_repel(data = subpage_data, force = 0, size = 2.5,
                         bg.color = "white", bg.r = 0.15,
                         aes(X, Y, 
                             label = str_c(asc_name, 
@@ -65,7 +65,7 @@ if (!is.na(measure_type)){
   } else if (measure_type == "integer"){
     plot <- plot +
       geom_text_repel(data = subpage_data, force = 0, 
-                      bg.color = "white", bg.r = 0.15, size = 3,
+                      bg.color = "white", bg.r = 0.15, size = 2.5,
                       aes(X, Y, 
                           label = str_c(asc_name, 
                                         "\n",
