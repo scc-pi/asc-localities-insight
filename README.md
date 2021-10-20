@@ -20,6 +20,8 @@ The process is:
 
 It will not take the inclusion of too many measures to make the HTML file too big and slow it down. If a lot of measures need to be included it would be better as a [Shiny](https://shiny.rstudio.com/) dashboard, and because the data is publicly available it could be hosted on [shinyapps.io](https://www.shinyapps.io/).
 
+The `different_areas_xlsx_etl.R` script produces a separate spreadsheet of all indicators with different sheets for ASC localities, Wards and neighbourhoods.  
+
 The code in this repo is largely derived from:  
 - [Let’s Make a Map in R](https://medium.com/@traffordDataLab/lets-make-a-map-in-r-7bd1d9366098) blog by Trafford Data Lab (February 2018)  
 - [Dynamically Rendered Flexdashboard Pages Using RMarkdown Childs](https://somtom.github.io/post/using-dynamically-rendered-r-markdown-childs-for-reports/) blog by SOMTOM (January 2019)  
