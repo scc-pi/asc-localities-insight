@@ -51,7 +51,8 @@ subpage_data <- subpage_data %>%
   select(-objectid, -X, -Y, -geom) %>%
   relocate(asc_name, .before = 1) %>%
   relocate(ca_name, .before = ca_number) %>%
-  relocate(all_of(measure_item), .before = 1)
+  relocate(all_of(measure_item), .before = 1) %>% 
+  arrange(asc_name)
 
 # Specify the DT format function to use depending on type of measure
 dt_format_function <- switch(
