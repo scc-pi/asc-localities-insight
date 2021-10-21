@@ -19,6 +19,18 @@ options(scipen=999)
 
 # Define a theme for the plots in the dashboard 
 theme_set(theme_minimal())
+
+## FUNCTIONS -------------------------------------------
+
+# Alternative to the scales dollar function so the prefix is £ rather than $
+pound <- function(x, y) {
+  dollar(round(x, digits = 0), prefix = "£")
+}
+
+# Alternative to the DT currency function so the prefix is £
+formatPound <- function(x, y, z) {
+  formatCurrency(table = x, columns = y, digits = 0, currency = "£")
+}
 ```
 
 ```{r global, include=FALSE}
@@ -72,7 +84,7 @@ df_sli_measure_with_meta <- read_rds(str_c(map_data_folder, "/",
                names_to = "meta_attr", values_to = "meta_value")
 ```
 
-```{r render subpages, include=FALSE}
+```{r render-subpages, include=FALSE}
 # Create variable which stores all subpages outputs
 out = NULL
 
@@ -101,16 +113,21 @@ for (menu_theme in df_themes$theme) {
   # Provide a menu item for each measure
   for (measure_item in df_asc_sli_measures_theme$measure) {
     
-    # Filter data for the measure 
-    subpage_data <- sf_asc_sli_theme %>% 
-      select(1:4, all_of(measure_item), c(X, Y, geom))
+    # Filter for the measure
+    df_measure_filtered <- df_asc_sli_measures %>% 
+      filter(theme == menu_theme & measure == measure_item)
     
-    # Filter for the type of measure
-    measure_type <- df_asc_sli_measures %>% 
-      filter(theme == menu_theme & measure == measure_item) %>% 
+    # Get the type of measure e.g. currency
+    measure_type <- df_measure_filtered %>% 
       select(type) %>% 
       pluck(1) %>% 
-      str_to_lower()
+      str_to_lower() %>% 
+      str_trim()
+    
+    # Get the number of decimal places for the measure
+    measure_decimals <- df_measure_filtered %>% 
+      select(decimals) %>% 
+      pluck(1)
     
     # Filter metadata for the measure 
     df_metadata <- df_sli_measure_with_meta %>% 
@@ -118,16 +135,39 @@ for (menu_theme in df_themes$theme) {
       select(-theme, -measure) %>% 
       pivot_wider(names_from = meta_attr, values_from = meta_value)
     
+    # Have we got any metadata for this measure?
+    got_metadata <- df_metadata %>%
+      drop_na %>% 
+      count() > 0
+    
     # Craft a data frame of formatted metadata
-    subpage_metadata <- tribble(~meta) %>% 
-      add_row(meta = df_metadata$description) %>% 
-      add_row(meta = str_c("**Date:** ", df_metadata$date)) %>% 
-      add_row(meta = str_c("**Update frequency:** ", 
-                           df_metadata$update_frequency)) %>% 
-      add_row(meta = str_c("**Source:** ", df_metadata$source)) %>% 
-      add_row(meta = str_c("[", str_replace(df_metadata$url, "https://", ""), 
-                           "](", df_metadata$url, ")"))
-      # add_row(meta = df_metadata$url)
+    if (got_metadata){
+      subpage_metadata <- tribble(~meta) %>% 
+        add_row(meta = df_metadata$description) %>%
+        add_row(meta = str_c("**Date:** ", df_metadata$date)) %>%
+        add_row(meta = str_c("**Update frequency:** ",
+                             df_metadata$update_frequency)) %>%
+        add_row(meta = str_c("**Source:** ", df_metadata$source)) %>%
+        add_row(meta = ifelse(!is.na(df_metadata$url),
+                              str_c("[", str_replace(df_metadata$url,
+                                                     "https://", ""),
+                                    "](", df_metadata$url, ")"),
+                              ""))
+    } else { #or not
+      subpage_metadata <- tribble(~meta, "*No metadata.*") 
+    }
+    
+    # Filter data for the measure 
+    subpage_data <- sf_asc_sli_theme %>% 
+      select(1:4, all_of(measure_item), c(X, Y, geom))
+    
+    # The ggplot & DT percentage formatting assumes 0.1 is 10%
+    if (!is.na(measure_type)){
+      if (measure_type == "percentage"){
+        subpage_data <- relocate(subpage_data, all_of(measure_item), .before = 1) 
+        subpage_data[, 1] <- (subpage_data[, 1] / 100)
+      }
+    }
 
     # Assign filtered data, theme & measure, and metadata to subpage_env
     assign("subpage_data", subpage_data, subpage_env)

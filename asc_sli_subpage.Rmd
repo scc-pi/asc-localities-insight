@@ -5,33 +5,30 @@ Column {data-width=600}
 
 ### 
 ```{r plot}
-plot <- ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
+# Specify the scales function to use depending on type of measure
+scales_function <- switch(
+  measure_type,
+  "percentage" = "percent",
+  "currency" = "pound",
+  "comma")
+
+# Create the choropleth
+ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
   geom_sf(alpha = 0.8, colour = 'white', size = 0.3) +
-  labs(x = NULL, y = NULL) +
-  theme(line = element_blank(),
-        axis.text = element_blank(),
-        axis.title = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "top",
+  theme_void() +
+  theme(legend.position = "top",
         legend.title = element_text(size = 9),
-        legend.text = element_text(size = 8))
-
-# Apply more formatting depending on the type of measure
-if (!is.na(measure_type)){
-  if (measure_type == "percentage"){
-    plot <- plot +
-        geom_text_repel(data = subpage_data, force = 0, size = 2.5,
-                        bg.color = "white", bg.r = 0.15,
-                        aes(X, Y, 
-                            label = str_c(asc_name, 
-                                          "\n",
-                                          percent(.data[[measure_item]],
-                                                  accuracy = 0.1, 
-                                                  scale = 1)))) +
-        scale_fill_viridis(discrete = FALSE,
+        legend.text = element_text(size = 8)) +
+  geom_text_repel(size = 2.5, force = 0, bg.color = "white", bg.r = 0.15,
+                  aes(X, Y, 
+                      label = 
+                        str_c(asc_name, "\n",
+                        get(scales_function)(get(measure_item), 
+                                             1 / (10 ^ measure_decimals))))) +
+  scale_fill_viridis(discrete = FALSE,
                      name = measure_item,
                      direction = -1,
-                     labels = function(x) percent(x, accuracy = 1, scale = 1),
+                     labels = function(x) get(scales_function)(x),
                      guide = guide_colourbar(
                        direction = "horizontal",
                        barheight = unit(2, units = "mm"),
@@ -39,56 +36,7 @@ if (!is.na(measure_type)){
                        draw.ulim = F,
                        title.position = 'top',
                        title.hjust = 0.5,
-                       label.hjust = 0.5)) 
-  } else if (measure_type == "small percentage"){
-    plot <- plot +
-        geom_text_repel(data = subpage_data, force = 0, size = 2.5,
-                        bg.color = "white", bg.r = 0.15,
-                        aes(X, Y, 
-                            label = str_c(asc_name, 
-                                          "\n",
-                                          percent(.data[[measure_item]],
-                                                  accuracy = 0.01, 
-                                                  scale = 1)))) +
-        scale_fill_viridis(discrete = FALSE,
-                     name = measure_item,
-                     direction = -1,
-                     labels = function(x) percent(x, accuracy = 0.1, scale = 1),
-                     guide = guide_colourbar(
-                       direction = "horizontal",
-                       barheight = unit(2, units = "mm"),
-                       barwidth = unit(50, units = "mm"),
-                       draw.ulim = F,
-                       title.position = 'top',
-                       title.hjust = 0.5,
-                       label.hjust = 0.5)) 
-  } else if (measure_type == "integer"){
-    plot <- plot +
-      geom_text_repel(data = subpage_data, force = 0, 
-                      bg.color = "white", bg.r = 0.15, size = 2.5,
-                      aes(X, Y, 
-                          label = str_c(asc_name, 
-                                        "\n",
-                                        comma(.data[[measure_item]], 
-                                              accuracy = 1)))) +
-        scale_fill_viridis(discrete = FALSE,
-                     name = measure_item,
-                     direction = -1,
-                     labels = function(x)
-                       format(x, big.mark = ","),
-                     guide = guide_colourbar(
-                       direction = "horizontal",
-                       barheight = unit(2, units = "mm"),
-                       barwidth = unit(50, units = "mm"),
-                       draw.ulim = F,
-                       title.position = 'top',
-                       title.hjust = 0.5,
-                       label.hjust = 0.5)) 
-  }
-}
-
-# Display the plot
-plot
+                       label.hjust = 0.5))
 ```
 
 Column {data-width=400}
@@ -97,42 +45,29 @@ Column {data-width=400}
 ### {data-height=550}
 
 ```{r table}
-# Reorganise data frame before formatting as (DT) table
-subpage_data <- subpage_data %>% 
+# Reorganise data frame before formatting as DT table
+subpage_data <- subpage_data %>%
   as_tibble () %>% #drops sf geometry (but not geom column)
-  select(-objectid, -X, -Y, -geom) %>% 
+  select(-objectid, -X, -Y, -geom) %>%
   relocate(asc_name, .before = 1) %>%
-  relocate(ca_name, .before = ca_number) %>% 
+  relocate(ca_name, .before = ca_number) %>%
   relocate(all_of(measure_item), .before = 1)
 
-# The DT percentage formatting assumes 0.1 is 10%
-if (!is.na(measure_type)){
-  if (measure_type == "percentage" || measure_type == "small percentage"){
-    subpage_data[, 1] <- (subpage_data[, 1] / 100)
-  }
-}
+# Specify the DT format function to use depending on type of measure
+dt_format_function <- switch(
+  measure_type,
+  "percentage" = "formatPercentage",
+  "currency" = "formatPound",
+  "formatRound")
 
-# Apply some table formatting
-subpage_data <- subpage_data %>% 
+# Apply some DT table formatting
+subpage_data %>%
   rename(ASC = asc_name, "CA number" = ca_number, "CA name" = ca_name) %>%
   datatable(rownames = FALSE,
             style = "bootstrap",
             class = "compact",
-            options = list(dom = 't', orderClasses = TRUE))
-
-# Apply more formatting depending on the type of measure
-if (!is.na(measure_type)){
-  if (measure_type == "percentage"){
-    subpage_data <- formatPercentage(subpage_data, 1, 1)
-  } else if (measure_type == "small percentage"){
-    subpage_data <- formatPercentage(subpage_data, 1, 2)
-  } else if (measure_type == "integer"){
-    subpage_data <- formatRound(subpage_data, 1, 0)
-  }
-}
-
-# Display the formatted table
-subpage_data
+            options = list(dom = 't', orderClasses = TRUE)) %>% 
+  get(dt_format_function)(1, measure_decimals)
 ```
 
 ### {data-height=450}
