@@ -42,4 +42,4 @@ vignettes/*.pdf
 /archive/
 
 # RStudio project files
-*.prj
+*.Proj
