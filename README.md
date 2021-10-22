@@ -13,12 +13,13 @@ SLI is geared towards providing information one area at a time. This dashboard i
 There are 7 ASC localities and they are identical to the Local Area Committees which are already on SLI.
 
 The process is:
-1. `asc_sli_etl.R` prepares the SLI data  
-1. `asc_localities_etl.R` prepares the ASC locality boundary data  
-1. `sli_measures.xls` is used to specify which themes and measures to include  
-1. `asc_sli_dashboard.Rmd` produces the [flexdashboard](https://pkgs.rstudio.com/flexdashboard/) HTML file  
+1. `asc_sli_etl.R` prepares the SLI data.  
+1. `asc_localities_etl.R` prepares the ASC locality boundary data. 
+1. `sli_measures_meta_etl.R` prepares the metadata for the indicators.   
+1. `sli_measures.xls` is used to specify which themes and indicators to include.    
+1. `asc_sli_dashboard.Rmd` produces the [flexdashboard](https://pkgs.rstudio.com/flexdashboard/) HTML file.    
 
-It will not take the inclusion of too many measures to make the HTML file too big and slow it down. If a lot of measures need to be included it would be better as a [Shiny](https://shiny.rstudio.com/) dashboard, and because the data is publicly available it could be hosted on [shinyapps.io](https://www.shinyapps.io/).
+It will not take the inclusion of too many indicators to make the HTML file too big and slow it down. If a lot of measures need to be included it would be better as a [Shiny](https://shiny.rstudio.com/) dashboard, and because the data is publicly available it could be hosted on [shinyapps.io](https://www.shinyapps.io/).
 
 The `different_areas_xlsx_etl.R` script produces a separate spreadsheet of all indicators with different sheets for ASC localities, Wards and neighbourhoods.  
 
