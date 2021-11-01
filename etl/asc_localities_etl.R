@@ -5,7 +5,7 @@
 # Author: Laurie Platt
 
 # SETUP -------------------------
-library(tidyverse); library(sf)
+library(tidyverse); library(sf); library(writexl)
 
 # Requires local ArcGIS Pro and license
 library(arcgisbinding); arc.check_product() 
@@ -48,3 +48,9 @@ sf_asc_localities <- sf_asc_localities %>%
 # Write the boundaries to a folder so we can quickly use them in R
 write_rds(sf_asc_localities, 
           str_c(map_data_folder, "/sf_asc_localities.rds"))
+
+# Write the non spatial data (LAC cross-references) to a spreadsheet
+sf_asc_localities %>% 
+  as_tibble() %>% 
+  select(asc_name, ca_number, ca_name) %>% 
+  write_xlsx(str_c(map_data_folder, "/asc_lac_xref.xlsx"))
