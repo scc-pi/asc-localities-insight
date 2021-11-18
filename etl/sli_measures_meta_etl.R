@@ -24,7 +24,7 @@ sli_meta_file <- "SLI_ind_metadata.csv"
 # Location of data we're using for maps
 map_data_folder <- str_c(
   "S:/Public Health/Policy Performance Communications/Business Intelligence/",
-  "Projects/AdultSocialCare/ASC_SNA/demographics/data")
+  "Projects/AdultSocialCare/ASC_SNA/data")
 
 # Name of file we're going to create
 sli_measure_with_meta_file <- "df_sli_measure_with_meta.rds"

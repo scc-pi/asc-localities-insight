@@ -22,7 +22,7 @@ sli_data_folder <- str_c(
 # Location of data we're using for maps
 map_data_folder <- str_c(
   "S:/Public Health/Policy Performance Communications/Business Intelligence/",
-  "Projects/AdultSocialCare/ASC_SNA/demographics/data")
+  "Projects/AdultSocialCare/ASC_SNA/data")
 
 # Name of the file with the ASC locality boundaries
 asc_localities_sf_file <- "sf_asc_localities.rds"

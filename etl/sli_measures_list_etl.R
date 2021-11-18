@@ -11,7 +11,7 @@ library(tidyverse); library(writexl)
 # Location of data we're using for maps
 map_data_folder <- str_c(
   "S:/Public Health/Policy Performance Communications/Business Intelligence/",
-  "Projects/AdultSocialCare/ASC_SNA/demographics/data")
+  "Projects/AdultSocialCare/ASC_SNA/data")
 
 # Name of the file with the SLI data (from asc_sli_etl.R)
 asc_sli_file <- "df_asc_sli.rds"
