@@ -27,7 +27,7 @@ ggplot(subpage_data, aes_string(fill = as.name(measure_item))) +
                                              1 / (10 ^ measure_decimals))))) +
   scale_fill_viridis(discrete = FALSE,
                      name = measure_item,
-                     direction = -1,
+                     direction = 1,
                      labels = function(x) get(scales_function)(x),
                      guide = guide_colourbar(
                        direction = "horizontal",
