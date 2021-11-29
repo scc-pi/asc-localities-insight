@@ -13,6 +13,7 @@ output:
 library(tidyverse); library(readxl); library(sf) 
 library(flexdashboard); library(viridis); library(scales)
 library(DT); library(gt); library(ggrepel)
+library(boundsheff) # https://github.com/scc-pi/boundsheff
 
 # Disable use of scientific notation
 options(scipen=999)
@@ -48,9 +49,6 @@ map_data_folder <- str_c(
 # Name of the ASC SLI data file
 asc_sli_file <- "df_asc_sli.rds"
 
-# Name of the file with the ASC locality boundaries
-asc_localities_sf_file <- "sf_asc_localities.rds"
-
 # Name of the file with the SLI metadata
 sli_measure_with_meta_file <- "df_sli_measure_with_meta.rds"
 
@@ -65,10 +63,6 @@ df_asc_sli_measures <- read_xlsx(sli_measures_file) %>%
 df_asc_sli <- read_rds(str_c(map_data_folder, "/", asc_sli_file)) %>% #all
   filter(measure %in% df_asc_sli_measures$measure) %>% #only what we want
   pivot_wider(names_from = measure, values_from = value)
-
-# Get the ASC locality boundaries with cross-references to LACs
-sf_asc_localities <- read_rds(str_c(map_data_folder,
-                                    "/", asc_localities_sf_file))
 
 # Join the SLI data to the ASC locality boundaries
 sf_asc_sli <- left_join(sf_asc_localities, df_asc_sli, 
