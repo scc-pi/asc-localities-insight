@@ -14,7 +14,6 @@ There are 7 ASC localities and they are identical to the Local Area Committees w
 
 The process is:
 1. `asc_sli_etl.R` prepares the SLI data.  
-1. `asc_localities_etl.R` prepares the ASC locality boundary data. 
 1. `sli_measures_meta_etl.R` prepares the indicator metadata.   
 1. `sli_measures.xls` is used to specify which themes and indicators to include.    
 1. `asc_sli_dashboard.Rmd` produces the [flexdashboard](https://pkgs.rstudio.com/flexdashboard/) HTML file.    
