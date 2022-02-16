@@ -64,10 +64,12 @@ dt_format_function <- switch(
 # Apply some DT table formatting
 subpage_data %>%
   rename(ASC = asc_name, "CA number" = ca_number, "CA name" = ca_name) %>%
-  datatable(rownames = FALSE,
-            style = "bootstrap",
-            class = "compact",
-            options = list(dom = 't', orderClasses = TRUE)) %>% 
+  datatable(
+    rownames = FALSE,
+    style = "bootstrap",
+    class = "compact",
+    options = list(dom = 't', orderClasses = TRUE, scrollY = '300px')
+  ) %>%  
   get(dt_format_function)(1, measure_decimals)
 ```
 
