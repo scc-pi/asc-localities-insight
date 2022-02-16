@@ -3,8 +3,9 @@ title: "ASC locality insight"
 output: 
   flexdashboard::flex_dashboard:
     theme: paper
-    logo: scc-60px.png
+    logo: resources/scc-60px.png
     navbar:
+      - { title: "ASC SNA", href: "file:///S:/BI%20Team/ASC-SNA/_site/index.html", align: right }      
       - { title: "data via Local Insight",  icon: "fa-database", href: "https://sheffield.communityinsight.org/", align: right }
       - { title: "source code",  icon: "fa-github", href: "https://github.com/scc-pi/asc-localities-insight", align: right }
 ---
@@ -170,7 +171,7 @@ for (menu_theme in df_themes$theme) {
     assign("subpage_metadata", subpage_metadata, subpage_env)
 
     # Knit subpage.RMD using the subpage_env and add result to out vector
-    out = c(out, knitr::knit_child('asc_sli_subpage.Rmd',
+    out = c(out, knitr::knit_child('_asc_sli_subpage.Rmd',
                                    envir = subpage_env))
   }
 }
